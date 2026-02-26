@@ -58,7 +58,7 @@ public class TransactionController {
     public ResponseEntity<ApiResponse<PageResponse<TransactionSearchDto>>> searchTransactions(
             @RequestBody(required = false) TransactionSearchDto searchDto,
             @RequestParam(defaultValue = "0") int pageNumber,
-            @RequestParam(defaultValue = "10") int pageSize) {
+            @RequestParam(defaultValue = "12") int pageSize) {
 
         log.info("POST /api/transaction/search - pageNuber: {}, pageSize:{} ", pageNumber, pageSize);
 
