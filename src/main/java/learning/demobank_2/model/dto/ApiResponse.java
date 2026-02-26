@@ -1,4 +1,4 @@
-package learning.demobank_2.dto;
+package learning.demobank_2.model.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
