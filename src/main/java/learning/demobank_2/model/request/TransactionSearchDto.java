@@ -1,11 +1,9 @@
 package learning.demobank_2.model.request;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -17,14 +15,6 @@ public class TransactionSearchDto {
     private String beneficiaryName;
     private String category;
 
-//    public boolean hasFilters(){
-//        return (bankName != null && !bankName.isEmpty()) ||
-//                (branchName != null && !branchName.isEmpty()) ||
-//                (transactionType != null && !transactionType.isEmpty()) ||
-//                (senderName != null && !senderName.isEmpty()) ||
-//                (beneficiaryName != null && !beneficiaryName.isEmpty()) ||
-//                (category != null && !category.isEmpty());
-//    }
 }
 
 

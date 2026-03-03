@@ -45,4 +45,20 @@ public interface TransactionRepository extends JpaRepository <Transaction, Integ
             @Param("category") String category,
             Pageable pageable
     );
+    @Query("SELECT t FROM Transaction t WHERE " +
+            "(:bankName IS NULL OR t.bankName LIKE %:bankName%) AND " +
+            "(:branchName IS NULL OR t.branchName LIKE %:branchName%) AND " +
+            "(:transactionType IS NULL OR t.transactionType LIKE %:transactionType%) AND " +
+            "(:senderName IS NULL OR t.senderName LIKE %:senderName%) AND " +
+            "(:beneficiaryName IS NULL OR t.beneficiaryName LIKE %:beneficiaryName%) AND " +
+            "(:category IS NULL OR t.category LIKE %:category%) " +
+            "ORDER BY t.id DESC")
+    List<Transaction> findAllTransactionsForExport(
+                    @Param("bankName") String bankName,
+                    @Param("branchName") String branchName,
+                    @Param("transactionType") String transactionType,
+                    @Param("senderName") String senderName,
+                    @Param("beneficiaryName") String beneficiaryName,
+                    @Param("category") String category
+            );
 }

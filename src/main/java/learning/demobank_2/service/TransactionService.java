@@ -1,6 +1,8 @@
 package learning.demobank_2.service;
 
+import jakarta.validation.Valid;
 import learning.demobank_2.constant.AppConstants;
+import learning.demobank_2.model.request.ExportTransactionDto;
 import learning.demobank_2.model.request.TransactionRequest;
 import learning.demobank_2.exception.ResourceNotFoundException;
 import learning.demobank_2.model.entity.Transaction;
@@ -13,6 +15,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 
 @Slf4j
 @Service
@@ -21,10 +25,11 @@ public class TransactionService {
 
     private final TransactionRepository transactionRepo;
 
+
     public Page<Transaction> getAllTransactions(int pageNumber, int pageSize) {
         log.debug("Fetching transactions - page: {}, size: {}", pageNumber, pageSize);
 
-        validatePagintionParameters(pageNumber, pageSize);
+        validatePaginationParameters(pageNumber, pageSize);
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
         Page<Transaction> transactions = transactionRepo.findAllTransactions(null, null,null,null,null,pageable);
@@ -110,7 +115,7 @@ public class TransactionService {
         );
     }
 
-    private void validatePagintionParameters(int pageNumber, int pageSize){
+    private void validatePaginationParameters(int pageNumber, int pageSize){
         if(pageNumber <0){
             log.error("Invalid page number: {}", pageNumber);
             throw new IllegalArgumentException(AppConstants.INVALID_PAGE_NUMBER);
@@ -121,7 +126,59 @@ public class TransactionService {
         }
     }
 
+    public List<ExportTransactionDto> exportTransactions(ExportTransactionDto exportDto) {
+        if (exportDto == null) {
+            log.debug("Export DTO is null, fetching all transactions for export");
+            exportDto = ExportTransactionDto.builder().build();
+        }
+        List<Transaction> transactions = transactionRepo.findAllTransactionsForExport(
+                exportDto.getBankName(),
+                exportDto.getBranchName(),
+                exportDto.getTransactionType(),
+                exportDto.getSenderName(),
+                exportDto.getBeneficiaryName(),
+                exportDto.getCategory()
+        );
+        return transactions.stream()
+                .map(t -> ExportTransactionDto.builder()
+                        .amount(t.getAmount())
+                        .bankName(t.getBankName())
+                        .branchName(t.getBranchName())
+                        .transactionType(t.getTransactionType())
+                        .senderName(t.getSenderName())
+                        .beneficiaryName(t.getBeneficiaryName())
+                        .category(t.getCategory())
+                        .build())
+                .collect(java.util.stream.Collectors.toList());
+    }
+
+    public TransactionRequest updateTransaction(int id, @Valid TransactionRequest request) {
+        Transaction existing = transactionRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Transaction not found with id: " + id));
+
+                Transaction updated = Transaction.builder()
+                        .id(existing.getId())
+                        .amount(request.getAmount())
+                        .bankName(request.getBankName())
+                        .branchName(request.getBranchName())
+                        .transactionType(request.getTransactionType())
+                        .debitAccountNumber(request.getDebitAccountNumber())
+                        .creditAccountNumber(request.getCreditAccountNumber())
+                        .senderPhoneNumber(request.getSenderPhoneNumber())
+                        .senderName(request.getSenderName())
+                        .beneficiaryName(request.getBeneficiaryName())
+                        .category(request.getCategory())
+                        .build();
+                Transaction savedTransaction = transactionRepo.save(updated);
+                log.info("Transaction updated with id: {}", savedTransaction.getId());
+                return mapToTransactionRequest(savedTransaction);
+    }
+
+    public TransactionRequest deleteTransaction(int id) {
+        Transaction existing = transactionRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Transaction not found with id: " + id));
+        transactionRepo.delete(existing);
+        log.info("Transaction deleted with id: {}", id);
+        return mapToTransactionRequest(existing);
+    }
 }
-
-
-
