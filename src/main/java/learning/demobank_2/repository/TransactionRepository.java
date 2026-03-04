@@ -1,15 +1,15 @@
 package learning.demobank_2.repository;
 
 import learning.demobank_2.model.entity.Transaction;
-import learning.demobank_2.model.request.TransactionSearchDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
-
+@Repository
 public interface TransactionRepository extends JpaRepository <Transaction, Integer> {
 
     @Query("SELECT t FROM Transaction t WHERE " +
@@ -27,7 +27,6 @@ public interface TransactionRepository extends JpaRepository <Transaction, Integ
             @Param("beneficiaryName") String beneficiaryName,
             Pageable pageable
     );
-
     @Query("SELECT t FROM Transaction t WHERE " +
             "(:bankName IS NULL OR t.bankName LIKE %:bankName%) AND " +
             "(:branchName IS NULL OR t.branchName LIKE %:branchName%) AND " +
@@ -60,5 +59,5 @@ public interface TransactionRepository extends JpaRepository <Transaction, Integ
                     @Param("senderName") String senderName,
                     @Param("beneficiaryName") String beneficiaryName,
                     @Param("category") String category
-            );
+    );
 }

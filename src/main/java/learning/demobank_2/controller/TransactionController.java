@@ -88,14 +88,17 @@ public class TransactionController {
 
         return buildSuccessResponse(pageResponse, message);
     }
-// Export transactions to Excel
 
-    @PostMapping("/export")
+// Export transactions to Excel
+    @GetMapping("/export")
     public ResponseEntity<InputStreamResource> exportTransactions(
             @RequestBody(required = false) ExportTransactionDto exportDto){
         log.info("POST /api/transactions/export - Exporting transactions with filters");
 
         try{
+            if (exportDto == null){
+                exportDto = new ExportTransactionDto();
+            }
             List<ExportTransactionDto> reportTransactions = transactionService.exportTransactions(exportDto);
             ByteArrayInputStream byteArrayInputStream = excelExportService.exportTransactionsToExcelStream(reportTransactions);
 
@@ -105,7 +108,7 @@ public class TransactionController {
 
             InputStreamResource resource = new InputStreamResource(byteArrayInputStream);
             return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + fullFilename)
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=" + fullFilename)
                     .contentType(MediaType.APPLICATION_OCTET_STREAM)
                     .body(resource);
         } catch (Exception e) {

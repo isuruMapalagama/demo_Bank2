@@ -2,10 +2,10 @@ package learning.demobank_2.service;
 
 import jakarta.validation.Valid;
 import learning.demobank_2.constant.AppConstants;
-import learning.demobank_2.model.request.ExportTransactionDto;
-import learning.demobank_2.model.request.TransactionRequest;
 import learning.demobank_2.exception.ResourceNotFoundException;
 import learning.demobank_2.model.entity.Transaction;
+import learning.demobank_2.model.request.ExportTransactionDto;
+import learning.demobank_2.model.request.TransactionRequest;
 import learning.demobank_2.model.request.TransactionSearchDto;
 import learning.demobank_2.repository.TransactionRepository;
 import lombok.RequiredArgsConstructor;
@@ -32,23 +32,23 @@ public class TransactionService {
         validatePaginationParameters(pageNumber, pageSize);
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
-        Page<Transaction> transactions = transactionRepo.findAllTransactions(null, null,null,null,null,pageable);
+        Page<Transaction> transactions = transactionRepo.findAllTransactions(null, null, null, null, null, pageable);
         log.info("Retrieved {} transactions from page {}", transactions.getNumberOfElements(), pageNumber);
         return transactions;
     }
 
-    public Transaction getTransactionById(int id){
+    public Transaction getTransactionById(int id) {
         log.debug("Fetching transaction with id: {}", id);
 
         return transactionRepo.findById(id)
-                .orElseThrow(()->{
+                .orElseThrow(() -> {
                     log.error("Transaction not found with id: {}", id);
-                    return new ResourceNotFoundException("Transaction","id", id);
+                    return new ResourceNotFoundException("Transaction", "id", id);
                 });
     }
 
-    public TransactionRequest createTransaction(TransactionRequest transactionRequest){
-        try{
+    public TransactionRequest createTransaction(TransactionRequest transactionRequest) {
+        try {
             log.debug("Creating new transaction");
 
             Transaction transaction = Transaction.builder()
@@ -66,15 +66,15 @@ public class TransactionService {
             Transaction savedTransaction = transactionRepo.save(transaction);
             log.info("Transaction created with id: {}", savedTransaction.getId());
 
-           return mapToTransactionRequest(savedTransaction);
+            return mapToTransactionRequest(savedTransaction);
 
-        }catch (Exception e){
+        } catch (Exception e) {
             log.error("Error creating transaction: {}", e.getMessage(), e);
             throw e;
         }
     }
 
-    private TransactionRequest mapToTransactionRequest(Transaction savedTransaction){
+    private TransactionRequest mapToTransactionRequest(Transaction savedTransaction) {
         return TransactionRequest.builder()
                 .amount(savedTransaction.getAmount())
                 .bankName(savedTransaction.getBankName())
@@ -89,7 +89,7 @@ public class TransactionService {
                 .build();
     }
 
-    public Page<TransactionSearchDto> searchTransactions(TransactionSearchDto searchDto, int pageNumber, int pageSize){
+    public Page<TransactionSearchDto> searchTransactions(TransactionSearchDto searchDto, int pageNumber, int pageSize) {
         log.debug("Searching transactions with filters - page: {}, size: {}", pageNumber, pageSize);
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
@@ -102,25 +102,25 @@ public class TransactionService {
                 searchDto.getCategory(),
                 pageable
         );
-        log.info("Found {} transactions matching search criteria on page {}", transactionSearchDtos. getNumberOfElements(), pageNumber);
-        return transactionSearchDtos.map(transaction->
+        log.info("Found {} transactions matching search criteria on page {}", transactionSearchDtos.getNumberOfElements(), pageNumber);
+        return transactionSearchDtos.map(transaction ->
                 TransactionSearchDto.builder()
-                .bankName(transaction.getBankName())
-                .branchName(transaction.getBranchName())
-                .transactionType(transaction.getTransactionType())
-                .senderName(transaction.getSenderName())
-                .beneficiaryName(transaction.getBeneficiaryName())
-                .category(transaction.getCategory())
-                .build()
+                        .bankName(transaction.getBankName())
+                        .branchName(transaction.getBranchName())
+                        .transactionType(transaction.getTransactionType())
+                        .senderName(transaction.getSenderName())
+                        .beneficiaryName(transaction.getBeneficiaryName())
+                        .category(transaction.getCategory())
+                        .build()
         );
     }
 
-    private void validatePaginationParameters(int pageNumber, int pageSize){
-        if(pageNumber <0){
+    private void validatePaginationParameters(int pageNumber, int pageSize) {
+        if (pageNumber < 0) {
             log.error("Invalid page number: {}", pageNumber);
             throw new IllegalArgumentException(AppConstants.INVALID_PAGE_NUMBER);
         }
-        if(pageSize<1 || pageSize > AppConstants.MAX_PAGE_SIZE){
+        if (pageSize < 1 || pageSize > AppConstants.MAX_PAGE_SIZE) {
             log.error("Invalid page size: {}", pageSize);
             throw new IllegalArgumentException(AppConstants.INVALID_PAGE_SIZE);
         }
@@ -156,22 +156,22 @@ public class TransactionService {
         Transaction existing = transactionRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Transaction not found with id: " + id));
 
-                Transaction updated = Transaction.builder()
-                        .id(existing.getId())
-                        .amount(request.getAmount())
-                        .bankName(request.getBankName())
-                        .branchName(request.getBranchName())
-                        .transactionType(request.getTransactionType())
-                        .debitAccountNumber(request.getDebitAccountNumber())
-                        .creditAccountNumber(request.getCreditAccountNumber())
-                        .senderPhoneNumber(request.getSenderPhoneNumber())
-                        .senderName(request.getSenderName())
-                        .beneficiaryName(request.getBeneficiaryName())
-                        .category(request.getCategory())
-                        .build();
-                Transaction savedTransaction = transactionRepo.save(updated);
-                log.info("Transaction updated with id: {}", savedTransaction.getId());
-                return mapToTransactionRequest(savedTransaction);
+        Transaction updated = Transaction.builder()
+                .id(existing.getId())
+                .amount(request.getAmount())
+                .bankName(request.getBankName())
+                .branchName(request.getBranchName())
+                .transactionType(request.getTransactionType())
+                .debitAccountNumber(request.getDebitAccountNumber())
+                .creditAccountNumber(request.getCreditAccountNumber())
+                .senderPhoneNumber(request.getSenderPhoneNumber())
+                .senderName(request.getSenderName())
+                .beneficiaryName(request.getBeneficiaryName())
+                .category(request.getCategory())
+                .build();
+        Transaction savedTransaction = transactionRepo.save(updated);
+        log.info("Transaction updated with id: {}", savedTransaction.getId());
+        return mapToTransactionRequest(savedTransaction);
     }
 
     public TransactionRequest deleteTransaction(int id) {

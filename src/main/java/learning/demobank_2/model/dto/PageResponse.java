@@ -35,6 +35,9 @@ public class PageResponse<T> {
     @JsonProperty("is_first")
     private boolean isFirst;
 
+    @JsonProperty("has_next")
+    private boolean hasNext;
+
 // -------------------------------
 
     public  static <T> PageResponse<T> of(Page<T> page){
@@ -46,6 +49,7 @@ public class PageResponse<T> {
                 .totalPages(page.getTotalPages())
                 .isLast(page.isLast())
                 .isFirst(page.isFirst())
+                .hasNext(page.hasNext())
                 .build();
     }
 }
