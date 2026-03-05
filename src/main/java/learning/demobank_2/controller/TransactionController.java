@@ -5,6 +5,7 @@ import learning.demobank_2.constant.AppConstants;
 import learning.demobank_2.model.entity.Transaction;
 import learning.demobank_2.model.dto.ApiResponse;
 import learning.demobank_2.model.dto.PageResponse;
+import learning.demobank_2.model.request.AllTransaction;
 import learning.demobank_2.model.request.ExportTransactionDto;
 import learning.demobank_2.model.request.TransactionRequest;
 import learning.demobank_2.model.request.TransactionSearchDto;
@@ -13,7 +14,6 @@ import learning.demobank_2.service.TransactionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.InputStreamResource;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -34,19 +34,17 @@ public class TransactionController {
 
 // Get all transactions with pagination
     @GetMapping("get-all")
-    public ResponseEntity<ApiResponse<PageResponse<Transaction>>> getAllTransactions(
+    public ResponseEntity<ApiResponse<PageResponse<AllTransaction>>> getAllTransactions(
+            @RequestBody(required = false) AllTransaction allTransaction,
             @RequestParam(defaultValue = "0") int pageNumber,
             @RequestParam(defaultValue = "10") int pageSize) {
 
-        log.info("Fetching paginated transactions| pageNumber: {}, pageSize: {}", pageNumber, pageSize);
-
-        Page<Transaction> transactionPage = transactionService.getAllTransactions(pageNumber, pageSize);
-        PageResponse<Transaction> pageResponse = PageResponse.of(transactionPage);
-
-        String message = transactionPage.isEmpty()
+        PageResponse<AllTransaction> pageResponse = PageResponse.of(transactionService.getAllTransactions(allTransaction, pageNumber, pageSize));
+        String message = pageResponse.getTransactions().isEmpty()
                 ? AppConstants.NO_TRANSACTIONS_FOUND
                 : AppConstants.TRANSACTIONS_RETRIEVED_SUCCESS;
         return buildSuccessResponse(pageResponse, message);
+
     }
 
 // Get transaction by ID
@@ -79,10 +77,9 @@ public class TransactionController {
         if (searchDto == null){
             searchDto = new TransactionSearchDto();
         }
-        Page<TransactionSearchDto> transactionPage = transactionService.searchTransactions(searchDto,pageNumber, pageSize);
-        PageResponse<TransactionSearchDto> pageResponse = PageResponse.of(transactionPage);
+        PageResponse<TransactionSearchDto> pageResponse = PageResponse.of(transactionService.searchTransactions(searchDto,pageNumber, pageSize));
 
-        String message = transactionPage.isEmpty()
+        String message = pageResponse.getTransactions().isEmpty()
                 ? AppConstants.NO_TRANSACTIONS_FOUND
                 : AppConstants.TRANSACTIONS_SEARCH_SUCCESS;
 
