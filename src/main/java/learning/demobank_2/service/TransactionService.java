@@ -46,7 +46,6 @@ public class TransactionService {
                     allTransaction.getBeneficiaryName(),
                     pageable
             );
-
 //            ---------------------- USING FOR LOOPS WITHOUT BUILDERS ----------------
             List<AllTransaction> allTransactions = new ArrayList<>();
 
@@ -70,7 +69,6 @@ public class TransactionService {
             log.error("Error logging transaction filters: {}", e.getMessage(), e);
             throw e;
         }
-
 
 //              --------------------- USING BUILDERS ----------------
 //                AllTransaction dto = AllTransaction.builder()
